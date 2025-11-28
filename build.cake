@@ -35,12 +35,12 @@ Task("Pack")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    foreach(var version in devExpressVersions)
+    foreach (var version in devExpressVersions)
     {
         Information($"Processing DevExpress Version: {version}");
 
         string packageVersion;
-        
+
         // Check if it's a self-compiled version (4 segments)
         var versionSegments = version.Split('.');
         if (versionSegments.Length == 4)
@@ -98,23 +98,72 @@ Task("Push")
     .IsDependentOn("Pack")
     .Does(() =>
 {
-    var apiKey = EnvironmentVariable("NUGET_API_KEY");
-    var source = EnvironmentVariable("NUGET_SOURCE") ?? "https://api.nuget.org/v3/index.json";
+    var nugetApiKey = EnvironmentVariable("NUGET_API_KEY");
+    var nugetSource = "https://api.nuget.org/v3/index.json";
 
-    if (string.IsNullOrEmpty(apiKey))
-    {
-        throw new Exception("NUGET_API_KEY environment variable is not set.");
-    }
+    var azureApiKey = EnvironmentVariable("AZURE_NUGET_KEY");
+    var azureSource = EnvironmentVariable("AZURE_NUGET_SOURCE");
 
-    var packages = GetFiles($"{artifactsDir}/*.nupkg");
-    foreach(var package in packages)
+    foreach (var version in devExpressVersions)
     {
-        DotNetNuGetPush(package.FullPath, new DotNetNuGetPushSettings
+        Information($"Processing Push for DevExpress Version: {version}");
+
+        string packageVersion;
+        bool isSelfCompiled = false;
+
+        // Re-calculate version logic to find the file
+        var versionSegments = version.Split('.');
+        if (versionSegments.Length == 4)
+        {
+            isSelfCompiled = true;
+            if (int.TryParse(versionSegments[3], out int lastSegment))
+            {
+                int newLastSegment = (lastSegment * 1000) + int.Parse(buildNumber);
+                packageVersion = $"{versionSegments[0]}.{versionSegments[1]}.{versionSegments[2]}.{newLastSegment}";
+            }
+            else
+            {
+                throw new InvalidOperationException($"Invalid version format for self-compiled version: {version}");
+            }
+        }
+        else
+        {
+            packageVersion = $"{version}.{buildNumber}";
+        }
+
+        var packagePath = $"{artifactsDir}/SenDev.Xaf.OneTimeMethods.Xpo.{packageVersion}.nupkg";
+
+        if (!FileExists(packagePath))
+        {
+            Warning($"Package not found: {packagePath}");
+            continue;
+        }
+
+        string source;
+        string apiKey;
+
+        if (isSelfCompiled)
+        {
+            // Push to Azure
+            source = azureSource;
+            apiKey = azureApiKey;
+            Information($"Pushing {packagePath} to Azure DevOps...");
+        }
+        else
+        {
+
+            source = nugetSource;
+            apiKey = nugetApiKey;
+        }
+
+        Information($"Pushing {packagePath} to NuGet.org...");
+        DotNetNuGetPush(packagePath, new DotNetNuGetPushSettings
         {
             Source = source,
             ApiKey = apiKey,
             SkipDuplicate = true
         });
+
     }
 });
 
