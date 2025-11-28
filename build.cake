@@ -68,10 +68,13 @@ Task("Pack")
             .WithProperty("DevExpressPackageVersion", version)
             .WithProperty("PackageVersion", packageVersion);
 
+        var nugetSettings = GetNuGetSettings(version);
+
         // Restore
         DotNetRestore("./src/SenDev.Xaf.OneTimeMethods.slnx", new DotNetRestoreSettings
         {
-            MSBuildSettings = msBuildSettings
+            MSBuildSettings = msBuildSettings,
+            Sources = new [] { nugetSettings.Source }
         });
 
         // Build
@@ -98,24 +101,16 @@ Task("Push")
     .IsDependentOn("Pack")
     .Does(() =>
 {
-    var nugetApiKey = EnvironmentVariable("NUGET_API_KEY");
-    var nugetSource = "https://api.nuget.org/v3/index.json";
-
-    var azureApiKey = EnvironmentVariable("AZURE_NUGET_KEY");
-    var azureSource = EnvironmentVariable("AZURE_NUGET_SOURCE");
-
     foreach (var version in devExpressVersions)
     {
         Information($"Processing Push for DevExpress Version: {version}");
 
         string packageVersion;
-        bool isSelfCompiled = false;
-
+        
         // Re-calculate version logic to find the file
         var versionSegments = version.Split('.');
         if (versionSegments.Length == 4)
         {
-            isSelfCompiled = true;
             if (int.TryParse(versionSegments[3], out int lastSegment))
             {
                 int newLastSegment = (lastSegment * 1000) + int.Parse(buildNumber);
@@ -132,35 +127,26 @@ Task("Push")
         }
 
         var packagePath = $"{artifactsDir}/SenDev.Xaf.OneTimeMethods.Xpo.{packageVersion}.nupkg";
-
+        
         if (!FileExists(packagePath))
         {
             Warning($"Package not found: {packagePath}");
             continue;
         }
 
-        string source;
-        string apiKey;
+        var nugetSettings = GetNuGetSettings(version);
 
-        if (isSelfCompiled)
+        if (string.IsNullOrEmpty(nugetSettings.ApiKey))
         {
-            // Push to Azure
-            source = azureSource;
-            apiKey = azureApiKey;
-            Information($"Pushing {packagePath} to Azure DevOps...");
-        }
-        else
-        {
-
-            source = nugetSource;
-            apiKey = nugetApiKey;
+             Warning($"API Key not found for version {version}. Skipping push.");
+             continue;
         }
 
-        Information($"Pushing {packagePath} to NuGet.org...");
+        Information($"Pushing {packagePath} to {nugetSettings.Source}...");
         DotNetNuGetPush(packagePath, new DotNetNuGetPushSettings
         {
-            Source = source,
-            ApiKey = apiKey,
+            Source = nugetSettings.Source,
+            ApiKey = nugetSettings.ApiKey,
             SkipDuplicate = true
         });
 
@@ -168,3 +154,20 @@ Task("Push")
 });
 
 RunTarget(target);
+
+public (string Source, string ApiKey) GetNuGetSettings(string version)
+{
+    var nugetApiKey = EnvironmentVariable("NUGET_API_KEY");
+    var nugetSource = "https://api.nuget.org/v3/index.json";
+
+    var azureApiKey = EnvironmentVariable("AZURE_NUGET_KEY");
+    var azureSource = EnvironmentVariable("AZURE_NUGET_SOURCE");
+
+    var versionSegments = version.Split('.');
+    if (versionSegments.Length == 4)
+    {
+        return (azureSource, azureApiKey);
+    }
+    
+    return (nugetSource, nugetApiKey);
+}
