@@ -17,9 +17,10 @@ jobs:
         dotnet-version: '9.0.x'
 
     - name: Build and Publish
-      shell: pwsh
-      
-      run: ./build.ps1 --target=Push --buildNumber=${{ github.run_number }}
+      uses: cake-build/cake-action@v3
+      with:
+        script-path: build.cake # Path to your Cake script
+        target: Push # Specify the target task to run
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         AZURE_NUGET_KEY: ${{ secrets.AZURE_NUGET_KEY }}
