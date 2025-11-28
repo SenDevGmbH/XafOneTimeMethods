@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+	<DevExpressPackageVersion>25.1.4.55</DevExpressPackageVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="DevExpress.ExpressApp" Version="$(DevExpressPackageVersion)" />
+    <PackageVersion Include="DevExpress.ExpressApp.Xpo" Version="$(DevExpressPackageVersion)" />
+  </ItemGroup>
+</Project>  
