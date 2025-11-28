@@ -69,13 +69,39 @@ Task("Pack")
             .WithProperty("PackageVersion", packageVersion);
 
         var nugetSettings = GetNuGetSettings(version);
+        string tempSourceName = "TempPrivateFeed";
 
-        // Restore
-        DotNetRestore("./src/SenDev.Xaf.OneTimeMethods.slnx", new DotNetRestoreSettings
+        if (nugetSettings.RequiresAuth)
         {
-            MSBuildSettings = msBuildSettings,
-            Sources = new [] { nugetSettings.Source }
-        });
+             // Ensure clean slate
+             try { DotNetNuGetRemoveSource(tempSourceName); } catch {}
+             
+             DotNetNuGetAddSource(tempSourceName, new DotNetNuGetAddSourceSettings 
+             { 
+                 Source = nugetSettings.Source,
+                 UserName = "devops", 
+                 Password = nugetSettings.ApiKey,
+                 ArgumentCustomization = args => args
+                    .Append("--store-password-in-clear-text")
+             });
+        }
+
+        try 
+        {
+            // Restore
+            DotNetRestore("./src/SenDev.Xaf.OneTimeMethods.slnx", new DotNetRestoreSettings
+            {
+                MSBuildSettings = msBuildSettings,
+                Sources = new [] { nugetSettings.Source }
+            });
+        }
+        finally
+        {
+            if (nugetSettings.RequiresAuth)
+            {
+                 try { DotNetNuGetRemoveSource(tempSourceName); } catch {}
+            }
+        }
 
         // Build
         DotNetBuild("./src/SenDev.Xaf.OneTimeMethods.slnx", new DotNetBuildSettings
@@ -155,7 +181,7 @@ Task("Push")
 
 RunTarget(target);
 
-public (string Source, string ApiKey) GetNuGetSettings(string version)
+public (string Source, string ApiKey, bool RequiresAuth) GetNuGetSettings(string version)
 {
     var nugetApiKey = EnvironmentVariable("NUGET_API_KEY");
     var nugetSource = "https://api.nuget.org/v3/index.json";
@@ -166,8 +192,8 @@ public (string Source, string ApiKey) GetNuGetSettings(string version)
     var versionSegments = version.Split('.');
     if (versionSegments.Length == 4)
     {
-        return (azureSource, azureApiKey);
+        return (azureSource, azureApiKey, true);
     }
     
-    return (nugetSource, nugetApiKey);
+    return (nugetSource, nugetApiKey, false);
 }
