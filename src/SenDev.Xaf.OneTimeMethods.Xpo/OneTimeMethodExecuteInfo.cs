@@ -44,5 +44,4 @@ public class OneTimeMethodExecuteInfo : BaseObject
     }
 
     #endregion
-
 }
