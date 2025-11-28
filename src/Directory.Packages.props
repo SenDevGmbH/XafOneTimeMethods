@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+	<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	<DevExpressPackageVersion Condition="'$(DevExpressPackageVersion)' == ''">25.1.4.55</DevExpressPackageVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="DevExpress.ExpressApp" Version="$(DevExpressPackageVersion)" />
+    <PackageVersion Include="DevExpress.ExpressApp.Xpo" Version="$(DevExpressPackageVersion)" />
+    <PackageVersion Include="DevExpress.Persistent.BaseImpl.Xpo" Version="$(DevExpressPackageVersion)" />
+  </ItemGroup>
+</Project>
