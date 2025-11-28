@@ -5,8 +5,8 @@ var configuration = Argument("configuration", "Release");
 // Define the list of DevExpress versions to build against
 var devExpressVersions = new List<string>
 {
-    "24.1.3",
-    "24.1.3.10"
+    "24.1.7",
+    "25.1.4.55"
 };
 
 var artifactsDir = "./artifacts";
@@ -53,7 +53,7 @@ Task("Pack")
             }
             else
             {
-                throw new Exception($"Invalid version format for self-compiled version: {version}");
+                throw new InvalidOperationException($"Invalid version format for self-compiled version: {version}");
             }
         }
         else
