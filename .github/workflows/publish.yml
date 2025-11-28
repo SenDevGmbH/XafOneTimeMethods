@@ -1,8 +1,9 @@
 name: Publish to NuGet
 
 on:
+  workflow_dispatch: # logic: Allows manual button click
   push:
-    branches: [ "master" ]
+    branches: [ "master", "main" ] 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -17,7 +18,10 @@ jobs:
 
     - name: Build and Publish
       shell: pwsh
+      
       run: ./build.ps1 --target=Push --buildNumber=${{ github.run_number }}
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        AZURE_NUGET_KEY: ${{ secrets.AZURE_NUGET_KEY }}
+        AZURE_NUGET_SOURCE: ${{ secrets.AZURE_NUGET_SOURCE }}
         NUGET_SOURCE: https://api.nuget.org/v3/index.json
