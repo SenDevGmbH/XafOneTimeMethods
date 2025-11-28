@@ -71,7 +71,7 @@ Task("Pack")
         var nugetSettings = GetNuGetSettings(version);
         string tempSourceName = "TempPrivateFeed";
 
-        if (nugetSettings.RequiresAuth)
+        if (nugetSettings.RequiresAuth && !string.IsNullOrEmpty(nugetSettings.ApiKey))
         {
              // Ensure clean slate
              try { DotNetNuGetRemoveSource(tempSourceName); } catch {}
