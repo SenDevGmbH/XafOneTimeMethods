@@ -107,9 +107,20 @@ Task("Pack")
         });
     }
 });
-
+Task("Test")
+    .Does(() =>
+    {
+       DotNetTest("./src/SenDev.Xaf.OneTimeMethods.Tests/SenDev.Xaf.OneTimeMethods.Tests.csproj", new DotNetTestSettings
+        {
+            Configuration = configuration,
+            NoBuild = true,
+            NoRestore = true,
+        });
+    
+    });
 Task("Push")
     .IsDependentOn("Pack")
+    .IsDependentOn("Test")
     .Does(() =>
 {
     foreach (var version in devExpressVersions)
