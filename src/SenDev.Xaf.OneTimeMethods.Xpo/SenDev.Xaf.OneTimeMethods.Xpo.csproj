@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="DevExpress.ExpressApp" />
+		<PackageReference Include="DevExpress.ExpressApp.Xpo" />
 		<PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" />
 	</ItemGroup>
 </Project>

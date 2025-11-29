@@ -15,4 +15,6 @@ public sealed class OneTimeMethodAttribute : Attribute
     }
 
     public OneTimeMethodExecutionSequence Sequence { get; set; } = OneTimeMethodExecutionSequence.AfterSchemaUpdate;
+    
+    public Type? ConnectionType { get; set; }
 }
