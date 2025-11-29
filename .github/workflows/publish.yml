@@ -21,6 +21,8 @@ jobs:
       with:
         script-path: build.cake # Path to your Cake script
         target: Push # Specify the target task to run
+        arguments:  |
+          buildNumber: ${{ github.run_number }}
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         AZURE_NUGET_KEY: ${{ secrets.AZURE_NUGET_KEY }}
