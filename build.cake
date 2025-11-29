@@ -7,7 +7,7 @@ var nugetSource = "https://api.nuget.org/v3/index.json";
 
 var azureApiKey = EnvironmentVariable("AZURE_NUGET_KEY");
 var azureSource = EnvironmentVariable("AZURE_NUGET_SOURCE");
-
+const string  tempSourceName = "TempPrivateFeed";
 // Define the list of DevExpress versions to build against
 var devExpressVersions = new List<string>
 {
@@ -69,19 +69,10 @@ Task("Pack")
             .WithProperty("DevExpressPackageVersion", version)
             .WithProperty("PackageVersion", packageVersion);
 
-        string tempSourceName = "TempPrivateFeed";
+        
 
         // Ensure clean slate
-        try { DotNetNuGetRemoveSource(tempSourceName); } catch { }
-
-        DotNetNuGetAddSource(tempSourceName, new DotNetNuGetAddSourceSettings
-        {
-            Source = azureSource,
-            UserName = "devops",
-            Password = azureApiKey,
-            ArgumentCustomization = args => args
-               .Append("--store-password-in-clear-text")
-        });
+        CreateAuthenticatedNugetConfig();
 
         try
         {
@@ -163,6 +154,7 @@ Task("Push")
         }
 
         Information($"Pushing {packagePath} to {nugetSettings.Source}...");
+        CreateAuthenticatedNugetConfig();
         DotNetNuGetPush(packagePath, new DotNetNuGetPushSettings
         {
             Source = nugetSettings.Source,
@@ -175,7 +167,7 @@ Task("Push")
 
 RunTarget(target);
 
-public (string Source, string ApiKey, bool RequiresAuth) GetNuGetSettings(string version)
+(string Source, string ApiKey, bool RequiresAuth) GetNuGetSettings(string version)
 {
 
     var versionSegments = version.Split('.');
@@ -185,4 +177,18 @@ public (string Source, string ApiKey, bool RequiresAuth) GetNuGetSettings(string
     }
 
     return (nugetSource, nugetApiKey, false);
+}
+
+void CreateAuthenticatedNugetConfig()
+{
+    try { DotNetNuGetRemoveSource(tempSourceName); } catch { }
+
+        DotNetNuGetAddSource(tempSourceName, new DotNetNuGetAddSourceSettings
+        {
+            Source = azureSource,
+            UserName = "devops",
+            Password = azureApiKey,
+            ArgumentCustomization = args => args
+               .Append("--store-password-in-clear-text")
+        });
 }
