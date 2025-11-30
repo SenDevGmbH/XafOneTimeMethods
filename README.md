@@ -11,7 +11,7 @@
 
 ## Requirements
 
-*   .NET 9.0
+*   .NET 8.0 or .NET Framework 4.7.2
 *   DevExpress XAF (XPO)
 
 ## Installation
