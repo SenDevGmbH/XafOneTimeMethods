@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SenDev.Xaf.OneTimeMethods.Xpo/SenDev.Xaf.OneTimeMethods.Xpo.csproj" />
+  <Project Path="SenDev.Xaf.OneTimeMethods.Tests/SenDev.Xaf.OneTimeMethods.Tests.csproj" />
+</Solution>
