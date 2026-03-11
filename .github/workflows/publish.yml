@@ -1,30 +1,15 @@
 name: Publish to NuGet
 
 on:
-  workflow_dispatch: # logic: Allows manual button click
+  workflow_dispatch:
   push:
-    branches: [ "master", "main" ] 
+    branches: [ "master", "main" ]
+
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
-
-    - name: Build and Publish
-      uses: cake-build/cake-action@v3
-      with:
-        script-path: build.cake # Path to your Cake script
-        target: Push # Specify the target task to run
-        arguments:  |
-          buildNumber: ${{ github.run_number }}
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        AZURE_NUGET_KEY: ${{ secrets.AZURE_NUGET_KEY }}
-        AZURE_NUGET_SOURCE: ${{ secrets.AZURE_NUGET_SOURCE }}
-        NUGET_SOURCE: https://api.nuget.org/v3/index.json
+    uses: SenDev/github-workflows/.github/workflows/publish.yml@main
+    with:
+      solution-path: ./src/SenDev.Xaf.OneTimeMethods.slnx
+      test-project-path: ./src/SenDev.Xaf.OneTimeMethods.Tests/SenDev.Xaf.OneTimeMethods.Tests.csproj
+      package-name-pattern: SenDev.Xaf.OneTimeMethods.Xpo
+    secrets: inherit
