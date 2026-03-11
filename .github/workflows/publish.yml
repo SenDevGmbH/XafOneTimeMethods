@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-publish:
-    uses: SenDev/github-workflows/.github/workflows/publish.yml@main
+    uses: SenDevGmbH/github-workflows/.github/workflows/publish.yml@main
     with:
       solution-path: ./src/SenDev.Xaf.OneTimeMethods.slnx
       test-project-path: ./src/SenDev.Xaf.OneTimeMethods.Tests/SenDev.Xaf.OneTimeMethods.Tests.csproj
