@@ -7,27 +7,9 @@ on:
 
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
-
-    - name: Restore dependencies
-      run: dotnet restore ./src/SenDev.Xaf.OneTimeMethods.slnx
-
-    - name: Build
-      run: dotnet build ./src/SenDev.Xaf.OneTimeMethods.slnx --configuration Release --no-restore
-
-    - name: Test
-      run: dotnet test ./src/SenDev.Xaf.OneTimeMethods.Tests/SenDev.Xaf.OneTimeMethods.Tests.csproj --configuration Release --no-build --no-restore
-
-    - name: Pack
-      run: dotnet pack ./src/SenDev.Xaf.OneTimeMethods.slnx --configuration Release --no-build --no-restore --output ./artifacts
-
-    - name: Publish to NuGet
-      run: dotnet nuget push "./artifacts/SenDev.Xaf.OneTimeMethods.Xpo.*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+    uses: SenDevGmbH/github-workflows/.github/workflows/publish.yml@master
+    with:
+      solution-path: ./src/SenDev.Xaf.OneTimeMethods.slnx
+      test-project-path: ./src/SenDev.Xaf.OneTimeMethods.Tests/SenDev.Xaf.OneTimeMethods.Tests.csproj
+      package-name-pattern: SenDev.Xaf.OneTimeMethods.Xpo
+    secrets: inherit
