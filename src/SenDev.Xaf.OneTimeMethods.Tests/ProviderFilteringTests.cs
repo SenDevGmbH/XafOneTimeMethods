@@ -4,6 +4,7 @@ using Xunit;
 
 namespace SenDev.Xaf.OneTimeMethods.Tests;
 
+[Collection(XafTestCollection.Name)]
 public class ProviderFilteringTests : IAsyncLifetime
 {
     private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder().Build();

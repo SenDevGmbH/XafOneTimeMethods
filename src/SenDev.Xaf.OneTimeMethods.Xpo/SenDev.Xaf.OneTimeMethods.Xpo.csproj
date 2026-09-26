@@ -5,9 +5,16 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
+		<Description>
+			SenDev.Xaf.OneTimeMethods.Xpo provides a simple and reliable way to run data initialization, migration, or cleanup logic exactly once in DevExpress XAF (XPO) applications.
+			It tracks executed methods in the database, supports execution before or after schema updates, and allows provider-specific method filtering.
+		</Description>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="DevExpress.ExpressApp.Xpo" />
 		<PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\SenDev.Xaf.OneTimeMethods\SenDev.Xaf.OneTimeMethods.csproj" />
 	</ItemGroup>
 </Project>

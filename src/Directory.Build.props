@@ -7,8 +7,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/SenDevGmbH/XafOneTimeMethods</PackageProjectUrl>
     <Description>
-        SenDev.Xaf.OneTimeMethods.Xpo provides a simple and reliable way to run data initialization, migration, or cleanup logic exactly once in DevExpress XAF (XPO) applications.
-        It tracks executed methods in the database, supports execution before or after schema updates, and allows provider-specific method filtering.
-  </Description>
+        Run data initialization, migration, or cleanup logic exactly once in DevExpress XAF applications (XPO and Entity Framework Core).
+    </Description>
   </PropertyGroup>
 </Project>

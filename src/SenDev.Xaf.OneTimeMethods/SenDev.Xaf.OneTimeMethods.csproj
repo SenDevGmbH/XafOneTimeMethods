@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<Description>
+			Common infrastructure for SenDev.Xaf.OneTimeMethods.Xpo and SenDev.Xaf.OneTimeMethods.EFCore: the [OneTimeMethod] attribute, method discovery, execution tracking and provider filtering.
+			Reference SenDev.Xaf.OneTimeMethods.Xpo or SenDev.Xaf.OneTimeMethods.EFCore in your XAF application instead of this package.
+		</Description>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="DevExpress.ExpressApp" />
+	</ItemGroup>
+</Project>

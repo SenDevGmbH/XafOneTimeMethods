@@ -3,7 +3,7 @@ using DevExpress.Xpo;
 
 namespace SenDev.Xaf.OneTimeMethods;
 
-public class OneTimeMethodExecuteInfo : BaseObject
+public class OneTimeMethodExecuteInfo : BaseObject, IOneTimeMethodExecuteInfo
 {
     #region Methods
 
