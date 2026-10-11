@@ -1,6 +1,6 @@
 # SenDev.Xaf.OneTimeMethods
 
-**SenDev.Xaf.OneTimeMethods** is a library for **DevExpress XAF (eXpressApp Framework)** applications using **XPO (eXpress Persistent Objects)**. It provides a robust mechanism to execute specific data manipulation or initialization methods **exactly once** during the application's database update lifecycle.
+**SenDev.Xaf.OneTimeMethods** is a library for **DevExpress XAF (eXpressApp Framework)** applications using **XPO (eXpress Persistent Objects)** or **Entity Framework Core**. It provides a robust mechanism to execute specific data manipulation or initialization methods **exactly once** during the application's database update lifecycle.
 
 ## Features
 
@@ -11,15 +11,25 @@
 
 ## Requirements
 
-*   .NET 8.0 or .NET Framework 4.7.2
-*   DevExpress XAF (XPO)
+*   .NET 8.0 or later
+*   DevExpress XAF (XPO or EF Core)
+
+## Packages
+
+| Package | Use it for |
+| --- | --- |
+| `SenDev.Xaf.OneTimeMethods.Xpo` | XAF applications using XPO |
+| `SenDev.Xaf.OneTimeMethods.EFCore` | XAF applications using Entity Framework Core |
+| `SenDev.Xaf.OneTimeMethods` | Common code shared by both (attribute, method discovery, provider filtering). Referenced automatically. |
 
 ## Installation
 
-Install the NuGet package `SenDev.Xaf.OneTimeMethods.Xpo` to your XAF module project.
+Install the package for your ORM to your XAF module project.
 
 ```bash
 dotnet add package SenDev.Xaf.OneTimeMethods.Xpo
+# or
+dotnet add package SenDev.Xaf.OneTimeMethods.EFCore
 ```
 
 ## Usage
@@ -104,9 +114,47 @@ private void OptimizeIndexes()
 }
 ```
 
+## Entity Framework Core
+
+The EF Core package works the same way, with two differences:
+
+1.  Its types live in the `SenDev.Xaf.OneTimeMethods.EFCore` namespace. Add `using SenDev.Xaf.OneTimeMethods.EFCore;` next to `using SenDev.Xaf.OneTimeMethods;` and register `SenDev.Xaf.OneTimeMethods.EFCore.OneTimeMethodsModule`.
+2.  Add the tracking entity to your `DbContext`:
+
+```csharp
+using SenDev.Xaf.OneTimeMethods.EFCore;
+
+public class MySolutionEFCoreDbContext : DbContext
+{
+    // ...
+    public DbSet<OneTimeMethodExecuteInfo> OneTimeMethodExecuteInfos { get; set; }
+}
+```
+
+The updater itself is written exactly as in the example above:
+
+```csharp
+using SenDev.Xaf.OneTimeMethods;
+using SenDev.Xaf.OneTimeMethods.EFCore;
+
+public class Updater : OneTimeMethodsModuleUpdaterBase
+{
+    public Updater(IObjectSpace objectSpace, Version currentDBVersion) : base(objectSpace, currentDBVersion)
+    {
+    }
+
+    [OneTimeMethod(ConnectionType = typeof(Microsoft.Data.SqlClient.SqlConnection))]
+    private void RunOnlyOnSqlServer()
+    {
+    }
+}
+```
+
+`ConnectionType` is matched against `DbContext.Database.GetDbConnection()`. With a non-relational provider (for example the in-memory provider) there is no connection, so methods with a `ConnectionType` are skipped.
+
 ## How It Works
 
-The library introduces a persistent class `OneTimeMethodExecuteInfo`. When the database update process runs:
+The library introduces a persistent class `OneTimeMethodExecuteInfo` (an XPO class or an EF Core entity, depending on the package). When the database update process runs:
 
 1.  The base class scans for methods with the `[OneTimeMethod]` attribute in your updater.
 2.  It queries the `OneTimeMethodExecuteInfo` table to check if the method has already been executed.

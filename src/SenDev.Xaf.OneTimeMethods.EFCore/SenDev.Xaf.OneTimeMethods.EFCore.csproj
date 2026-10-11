@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<Description>
+			SenDev.Xaf.OneTimeMethods.EFCore provides a simple and reliable way to run data initialization, migration, or cleanup logic exactly once in DevExpress XAF (Entity Framework Core) applications.
+			It tracks executed methods in the database, supports execution before or after schema updates, and allows provider-specific method filtering.
+		</Description>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="DevExpress.ExpressApp.EFCore" />
+		<PackageReference Include="DevExpress.Persistent.BaseImpl.EFCore" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\SenDev.Xaf.OneTimeMethods\SenDev.Xaf.OneTimeMethods.csproj" />
+	</ItemGroup>
+</Project>

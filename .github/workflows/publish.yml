@@ -11,5 +11,5 @@ jobs:
     with:
       solution-path: ./src/SenDev.Xaf.OneTimeMethods.slnx
       test-project-path: ./src/SenDev.Xaf.OneTimeMethods.Tests/SenDev.Xaf.OneTimeMethods.Tests.csproj
-      package-name-pattern: SenDev.Xaf.OneTimeMethods.Xpo
+      package-name-pattern: SenDev.Xaf.OneTimeMethods*
     secrets: inherit
