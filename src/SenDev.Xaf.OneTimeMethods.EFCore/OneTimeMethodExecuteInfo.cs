@@ -10,6 +10,8 @@ public class OneTimeMethodExecuteInfo : BaseObject, IOneTimeMethodExecuteInfo
 {
     public virtual string? MethodName { get; set; }
 
+    public virtual string? UpdaterName { get; set; }
+
     public virtual DateTime ExecuteTime { get; set; }
 
     public virtual string? ExecutedOnVersion { get; set; }

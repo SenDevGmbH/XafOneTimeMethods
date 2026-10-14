@@ -26,6 +26,13 @@ public abstract class OneTimeMethodsModuleUpdaterCore : ModuleUpdater
     /// </summary>
     protected abstract IDbConnection? GetConnection();
 
+    /// <summary>
+    /// Identifies this updater in the stored <see cref="IOneTimeMethodExecuteInfo"/> records, so that methods
+    /// with the same name in different updaters are tracked separately. Defaults to the full name of the updater type.
+    /// Override it to return a fixed value when you rename or move the updater class, otherwise its methods run again.
+    /// </summary>
+    protected virtual string UpdaterName => GetType().FullName!;
+
     public override void UpdateDatabaseBeforeUpdateSchema()
     {
         base.UpdateDatabaseBeforeUpdateSchema();
@@ -54,8 +61,11 @@ public abstract class OneTimeMethodsModuleUpdaterCore : ModuleUpdater
         if (methods.Length == 0)
             return;
 
+        // Records without an updater name were written before it was stored and count for every updater.
+        var updaterName = UpdaterName;
         var executedMethods = ObjectSpace.GetObjects(ExecuteInfoType)
             .Cast<IOneTimeMethodExecuteInfo>()
+            .Where(info => info.UpdaterName == null || info.UpdaterName == updaterName)
             .Select(info => info.MethodName)
             .ToHashSet();
 
@@ -85,6 +95,7 @@ public abstract class OneTimeMethodsModuleUpdaterCore : ModuleUpdater
         method.Invoke(this, null);
         var info = (IOneTimeMethodExecuteInfo)ObjectSpace.CreateObject(ExecuteInfoType);
         info.MethodName = method.Name;
+        info.UpdaterName = UpdaterName;
         info.ExecuteTime = startTime;
         info.ExecutedOnVersion = CurrentDBVersion.ToString();
         stopWatch.Stop();
