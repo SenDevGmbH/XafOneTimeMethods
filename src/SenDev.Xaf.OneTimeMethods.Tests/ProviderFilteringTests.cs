@@ -7,23 +7,23 @@ namespace SenDev.Xaf.OneTimeMethods.Tests;
 [Collection(XafTestCollection.Name)]
 public class ProviderFilteringTests : IAsyncLifetime
 {
-    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder().Build();
+    private readonly MsSqlContainer msSqlContainer = new MsSqlBuilder().Build();
 
     public async Task InitializeAsync()
     {
-        await _msSqlContainer.StartAsync();
+        await msSqlContainer.StartAsync();
     }
 
     public async Task DisposeAsync()
     {
-        await _msSqlContainer.DisposeAsync();
+        await msSqlContainer.DisposeAsync();
     }
 
     [Fact]
     public void CheckExecutedMSSqlMethod()
     {
     
-        var connectionString = $"XPOProvider={MSSqlConnectionProvider.XpoProviderTypeString};{_msSqlContainer.GetConnectionString()}";
+        var connectionString = $"XPOProvider={MSSqlConnectionProvider.XpoProviderTypeString};{msSqlContainer.GetConnectionString()}";
         AssertMethodExecuted(connectionString, "RunOnMssql");
     }
 

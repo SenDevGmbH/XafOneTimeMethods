@@ -5,28 +5,28 @@ namespace SenDev.Xaf.OneTimeMethods.Tests;
 [Collection(XafTestCollection.Name)]
 public class UpdaterNameTests : IDisposable
 {
-    private readonly string _sqliteFile = Path.Combine(Path.GetTempPath(), $"OneTimeMethods-{Guid.NewGuid():N}.db");
-    private readonly TestApplication _application = new();
+    private readonly string sqliteFile = Path.Combine(Path.GetTempPath(), $"OneTimeMethods-{Guid.NewGuid():N}.db");
+    private readonly TestApplication application = new();
 
     public UpdaterNameTests()
     {
         SQLitePCL.Batteries.Init();
-        _application.ConnectionString = $"XPOProvider=SQLite;Data Source={_sqliteFile}";
-        _application.Setup();
-        _application.CheckCompatibility();
+        application.ConnectionString = $"XPOProvider=SQLite;Data Source={sqliteFile}";
+        application.Setup();
+        application.CheckCompatibility();
     }
 
     public void Dispose()
     {
-        _application.Dispose();
+        application.Dispose();
         Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
-        File.Delete(_sqliteFile);
+        File.Delete(sqliteFile);
     }
 
     [Fact]
     public void StoresUpdaterFullClassName()
     {
-        using var objectSpace = _application.CreateObjectSpace(typeof(OneTimeMethodExecuteInfo));
+        using var objectSpace = application.CreateObjectSpace(typeof(OneTimeMethodExecuteInfo));
         var info = objectSpace.GetObjectsQuery<OneTimeMethodExecuteInfo>().Single(i => i.MethodName == "RunOnSQLite");
         Assert.Equal(typeof(TestUpdater).FullName, info.UpdaterName);
     }
@@ -34,7 +34,7 @@ public class UpdaterNameTests : IDisposable
     [Fact]
     public void SameMethodNameInAnotherUpdaterIsExecuted()
     {
-        using var objectSpace = _application.CreateObjectSpace(typeof(OneTimeMethodExecuteInfo));
+        using var objectSpace = application.CreateObjectSpace(typeof(OneTimeMethodExecuteInfo));
         new RenamedTestUpdater(objectSpace, new Version()).UpdateDatabaseAfterUpdateSchema();
 
         var updaterNames = objectSpace.GetObjectsQuery<OneTimeMethodExecuteInfo>()
@@ -48,7 +48,7 @@ public class UpdaterNameTests : IDisposable
     [Fact]
     public void RecordWithoutUpdaterNameCountsAsExecuted()
     {
-        using var objectSpace = _application.CreateObjectSpace(typeof(OneTimeMethodExecuteInfo));
+        using var objectSpace = application.CreateObjectSpace(typeof(OneTimeMethodExecuteInfo));
         objectSpace.GetObjectsQuery<OneTimeMethodExecuteInfo>().Single(i => i.MethodName == "RunOnSQLite").UpdaterName = null;
         objectSpace.CommitChanges();
 
