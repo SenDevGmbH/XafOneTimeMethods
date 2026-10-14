@@ -114,6 +114,22 @@ private void OptimizeIndexes()
 }
 ```
 
+### Multiple Updaters
+
+Each execution record stores the updater's full class name next to the method name, so methods with the same name in different updaters are tracked separately.
+
+If you rename or move an updater class, its methods would run again under the new name. To prevent that, override `UpdaterName` and return the old full class name:
+
+```csharp
+public class Updater : OneTimeMethodsModuleUpdaterBase
+{
+    // ...
+    protected override string UpdaterName => "MySolution.Module.DatabaseUpdate.Updater";
+}
+```
+
+Records written by earlier versions of the library have no updater name. They count as executed for every updater, so upgrading does not run any method again.
+
 ## Entity Framework Core
 
 The EF Core package works the same way, with two differences:
@@ -150,6 +166,8 @@ public class Updater : OneTimeMethodsModuleUpdaterBase
 }
 ```
 
+If you manage the schema with EF Core migrations, add a migration after upgrading to create the `UpdaterName` column.
+
 `ConnectionType` is matched against `DbContext.Database.GetDbConnection()`. With a non-relational provider (for example the in-memory provider) there is no connection, so methods with a `ConnectionType` are skipped.
 
 ## How It Works
@@ -157,5 +175,5 @@ public class Updater : OneTimeMethodsModuleUpdaterBase
 The library introduces a persistent class `OneTimeMethodExecuteInfo` (an XPO class or an EF Core entity, depending on the package). When the database update process runs:
 
 1.  The base class scans for methods with the `[OneTimeMethod]` attribute in your updater.
-2.  It queries the `OneTimeMethodExecuteInfo` table to check if the method has already been executed.
-3.  If the method has not run, it is executed, and a new record is saved to `OneTimeMethodExecuteInfo` with the execution timestamp, duration, and database version.
+2.  It queries the `OneTimeMethodExecuteInfo` table to check if the method has already been executed by this updater (or by a record without an updater name).
+3.  If the method has not run, it is executed, and a new record is saved to `OneTimeMethodExecuteInfo` with the updater name, execution timestamp, duration, and database version.

@@ -9,32 +9,32 @@ namespace SenDev.Xaf.OneTimeMethods.Tests.EFCore
     [Collection(XafTestCollection.Name)]
     public class EFCoreProviderFilteringTests : IAsyncLifetime
     {
-        private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder().Build();
-        private readonly string _sqliteFile = Path.Combine(Path.GetTempPath(), $"OneTimeMethods-{Guid.NewGuid():N}.db");
+        private readonly MsSqlContainer msSqlContainer = new MsSqlBuilder().Build();
+        private readonly string sqliteFile = Path.Combine(Path.GetTempPath(), $"OneTimeMethods-{Guid.NewGuid():N}.db");
 
         public async Task InitializeAsync()
         {
-            await _msSqlContainer.StartAsync();
+            await msSqlContainer.StartAsync();
         }
 
         public async Task DisposeAsync()
         {
-            await _msSqlContainer.DisposeAsync();
+            await msSqlContainer.DisposeAsync();
             Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
-            File.Delete(_sqliteFile);
+            File.Delete(sqliteFile);
         }
 
         [Fact]
         public void CheckExecutedMSSqlMethod()
         {
-            var executedMethods = RunUpdater(_msSqlContainer.GetConnectionString(), (builder, connectionString) => builder.UseSqlServer(connectionString));
+            var executedMethods = RunUpdater(msSqlContainer.GetConnectionString(), (builder, connectionString) => builder.UseSqlServer(connectionString));
             Assert.Equal(["RunBeforeSchemaUpdate", "RunOnAnyProvider", "RunOnMssql"], executedMethods);
         }
 
         [Fact]
         public void CheckSQLiteMethodExecuted()
         {
-            var executedMethods = RunUpdater($"Data Source={_sqliteFile}", (builder, connectionString) => builder.UseSqlite(connectionString));
+            var executedMethods = RunUpdater($"Data Source={sqliteFile}", (builder, connectionString) => builder.UseSqlite(connectionString));
             Assert.Equal(["RunBeforeSchemaUpdate", "RunOnAnyProvider", "RunOnSQLite"], executedMethods);
         }
 

@@ -22,6 +22,14 @@ public class OneTimeMethodExecuteInfo : BaseObject, IOneTimeMethodExecuteInfo
         set => SetPropertyValue(nameof(MethodName), ref methodName, value);
     }
 
+    private string? updaterName;
+    [Size(512)]
+    public string? UpdaterName
+    {
+        get => updaterName;
+        set => SetPropertyValue(nameof(UpdaterName), ref updaterName, value);
+    }
+
     private DateTime executeTime;
     public DateTime ExecuteTime
     {
